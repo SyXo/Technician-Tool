@@ -3,7 +3,7 @@
 ::           website :  www.geeksonsite.com      
 ::           Updated :  7/22/2018
 ::           File    :  GOS Connect Tool   
-::           Version :  1.0.0.8
+::           Version :  1.0.0.9
 
 @echo off
 Setlocal
@@ -98,12 +98,12 @@ if /i "%ANSWER%"=="E" goto Edge
 
 
 : Internet_Explorer
-start iexplore.exe -extoff "96.0.0.172"
+start iexplore.exe -extoff "www.geeksonsite.com"
 cls
 goto top
 
 : Edge
-start microsoft-edge:"96.0.0.172"
+start microsoft-edge:"www.geeksonsite.com"
 cls
 goto top
 
