@@ -3,7 +3,7 @@
 ::  DEFINE SYSTEM ENVIRONMENT
 	@echo off
 	setlocal enabledelayedexpansion
-	set SCRIPT_VERSION=4.0.2.0
+	set SCRIPT_VERSION=4.0.3.0
 	Title  ------- GEEKS ON SITE ------ Version %SCRIPT_VERSION%
 	mode con: cols=46 lines=2
 	color 9F&prompt $v
@@ -1469,6 +1469,8 @@ REM QUERY EVENTS 3 - QUERY SECURITY LOGS
 	set Manufacturer=
 	set Model=
 	set Serialnumber=
+	set Processor=
+	set Physical_Memory=
 	set Start`Page=
 	set Caption=
 	set Default_Printer=
@@ -1482,6 +1484,10 @@ REM QUERY EVENTS 3 - QUERY SECURITY LOGS
 	for /F "tokens=2 delims='='" %%A in ('wmic Bios Get SerialNumber /value') do set Serial_Number=%%A
 ::  Get IE Home Page
 	for /f "tokens=3*" %%A in ('REG QUERY "HKCU\Software\Microsoft\Internet Explorer\Main" /v "Start Page"') do set Start`Page=%%~B
+::  Get Processor Info 
+	for /F "tokens=2 delims='='" %%A in ('wmic CPU Get Name /value') do set Processor=%%A
+::  Get Total Ram
+	for /f "tokens=2* delims=:" %%A in ('systeminfo ^| findstr /I /C:"Total Physical Memory"') do set Physical_Memory=%%A
 ::  Get Default Printer Info
 	for /f "tokens=2* delims==" %%A in ('wmic printer where "default=True" get name /value') do set Default_Printer=%%A
 ::  Generate file
@@ -1495,6 +1501,9 @@ REM QUERY EVENTS 3 - QUERY SECURITY LOGS
 	echo Manufacturer: %Manufacturer% >> %file%
 	echo Model: %Model% >> %file%
 	echo Serial Number: %Serial_Number% >> %file%
+	echo CPU: %Processor% >> %file%
+	echo Physical Memory Size: %Physical_Memory% >> %file%
+	call :drive_size
 	echo. >> %file%
 	echo IE Home Page: %Start`Page% >> %file%
 	call :google_home
@@ -1512,6 +1521,38 @@ REM QUERY EVENTS 3 - QUERY SECURITY LOGS
 	del TechnicianTool.tmp
 	cls
 	goto Control_Center
+::  QUERYS HARD DRIVE SIZE AND FREE SPACE
+: drive_size
+	setlocal enabledelayedexpansion
+	WMIC LOGICALDISK where drivetype=3 get caption,size,FreeSpace>%~n0.tmp
+	for /f "tokens=1-3 skip=1" %%a in ('type "%~n0.tmp"') do call :displayinfo %%a %%b %%c
+	exit /b
+: displayinfo
+	set "drive=%1"
+	set "free=%2"
+	set "total=%3"
+	call :convertbytes total
+	call :convertbytes free
+	echo HD Free space: %drive% %free% >> %file%
+	goto :eof
+: convertbytes
+	set "str=!%1!"
+	set "sign="
+	set "bytes=0"
+	set "fraction=0"  
+: loop
+    set "fraction=%bytes:~0,1%"
+    set "bytes=%str:~-3%"
+    set "str=%str:~0,-3%"
+    if "%sign%"=="GB" set "sign=TB"
+    if "%sign%"=="MB" set "sign=GB"
+    if "%sign%"=="KB" set "sign=MB"
+    if "%sign%"=="B"  set "sign=KB"
+    if not defined sign set "sign=B"
+	if defined str goto loop
+	set "%1=%bytes%.%fraction% %sign%"
+	setlocal disabledelayedexpansion
+	goto :eof
 ::  QUERYS GOOGLE HOMEPAGE
 : google_home
 	set js="%temp%\extractChromeHomepage%random%.js"
@@ -1557,8 +1598,6 @@ REM QUERY EVENTS 3 - QUERY SECURITY LOGS
 	set AV=
 	set Operating System=
 	set SP=
-	set Processor=
-	set Physical_Memory=
 	set Caption=
 	set MBAM=
 ::  Get Anti Virus
@@ -1568,10 +1607,6 @@ REM QUERY EVENTS 3 - QUERY SECURITY LOGS
 	for /F "tokens=1 delims='|'" %%A in ("%Operating_System%") do set Operating_System=%%A	
 ::  Get Computer OS Service Pack
 	for /F "tokens=2 delims='='" %%A in ('wmic os get ServicePackMajorVersion /value') do set SP=%%A
-::  Get Processor Info 
-	for /F "tokens=2 delims='='" %%A in ('wmic CPU Get Name /value') do set Processor=%%A
-::  Get Total Ram
-	for /f "tokens=2* delims=:" %%A in ('systeminfo ^| findstr /I /C:"Total Physical Memory"') do set Physical_Memory=%%A
 ::  Get Windows 10 Version
 	for /f "tokens=2 delims=[]" %%x in ('ver') do set WINVER=%%x
 	set WINVER=%WINVER:Version =%
@@ -1595,9 +1630,8 @@ REM QUERY EVENTS 3 - QUERY SECURITY LOGS
 	if /i "%W_V:~0,9%"=="Windows 7" echo OS: %Operating_System%  Service Pack: %SP% >> %file%
 	if /i "%W_V:~0,9%"=="Windows 8" echo OS: %Operating_System%  %WINVER% >> %file%
 	if /i "%W_V:~0,9%"=="Windows 1" echo OS: %Operating_System%  %WINVER% >> %file%
-	echo CPU: %Processor% >> %file%
-	echo Physical Memory Size: %Physical_Memory% >> %file%
-	call :drive_size
+	echo OS Upgrade capability: >> %file%
+	echo Suggestion for upgrade: >> %file%
 	echo. >> %file%
 	echo Antivirus: %AV% >> %file% 
 	echo Malwarebytes: %MBAM% >> %file%
@@ -1608,38 +1642,6 @@ REM QUERY EVENTS 3 - QUERY SECURITY LOGS
 	del TechnicianTool.tmp
 	cls
 	goto Control_Center
-::  QUERYS HARD DRIVE SIZE AND FREE SPACE
-: drive_size
-	setlocal enabledelayedexpansion
-	WMIC LOGICALDISK where drivetype=3 get caption,size,FreeSpace>%~n0.tmp
-	for /f "tokens=1-3 skip=1" %%a in ('type "%~n0.tmp"') do call :displayinfo %%a %%b %%c
-	exit /b
-: displayinfo
-	set "drive=%1"
-	set "free=%2"
-	set "total=%3"
-	call :convertbytes total
-	call :convertbytes free
-	echo HD Free space: %drive% %free% >> %file%
-	goto :eof
-: convertbytes
-	set "str=!%1!"
-	set "sign="
-	set "bytes=0"
-	set "fraction=0"  
-: loop
-    set "fraction=%bytes:~0,1%"
-    set "bytes=%str:~-3%"
-    set "str=%str:~0,-3%"
-    if "%sign%"=="GB" set "sign=TB"
-    if "%sign%"=="MB" set "sign=GB"
-    if "%sign%"=="KB" set "sign=MB"
-    if "%sign%"=="B"  set "sign=KB"
-    if not defined sign set "sign=B"
-	if defined str goto loop
-	set "%1=%bytes%.%fraction% %sign%"
-	setlocal disabledelayedexpansion
-	goto :eof
 ::===============================================================================================================
 :================================================================================================================
 :: CONTROL CENTER 0 - CLEANS UP - FROM MTU AND FFTU  
