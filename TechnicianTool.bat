@@ -3,7 +3,7 @@
 ::  DEFINE SYSTEM ENVIRONMENT
 	@echo off
 	setlocal enabledelayedexpansion
-	set SCRIPT_VERSION=4.0.3.0
+	set SCRIPT_VERSION=4.0.4.0
 	Title  ------- GEEKS ON SITE ------ Version %SCRIPT_VERSION%
 	mode con: cols=46 lines=2
 	color 9F&prompt $v
@@ -252,7 +252,7 @@
 	goto FTP_Import
 ::===============================================================================================================
 : XP_Fix_FTP
-	echo Windows Registry Editor Version 5.00 FTP_Fix.txt
+	echo Windows Registry Editor Version 5.00> FTP_Fix.txt
 	echo [HKEY_CLASSES_ROOT\ftp]>> FTP_Fix.txt
 	echo @="URL:File Transfer Protocol">> FTP_Fix.txt
 	echo "EditFlags"=dword:00000002>> FTP_Fix.txt
@@ -1051,7 +1051,7 @@
 	echo.
 	if "%Jobs%"=="YES" mode con: cols=50 lines=3
 	echo Next Job is HitmanPro
-	START CMD /C "c:\gos\3  Rkill.exe"
+	START CMD /C "c:\gos\2  Rkill.exe"
 	if "%Jobs%"=="No" goto GOS_Tools
 	timeout /T 10
 : HitmanPro
