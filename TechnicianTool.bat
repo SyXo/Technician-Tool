@@ -3,7 +3,7 @@
 ::  DEFINE SYSTEM ENVIRONMENT
 	@echo off
 	setlocal enabledelayedexpansion
-	set SCRIPT_VERSION=4.0.4.0
+	set SCRIPT_VERSION=4.0.4.1
 	Title  ------- GEEKS ON SITE ------ Version %SCRIPT_VERSION%
 	mode con: cols=46 lines=2
 	color 9F&prompt $v
@@ -1027,7 +1027,7 @@
 	echo 	  º  2.  HitmanPro                            (FFTU - MTU)         º
 	echo 	  º  3.  Malwarebytes AntiMalware             (FFTU)               º
 	echo 	  º  4.  CCleaner                             (FFTU - MTU)         º
-	echo 	  º  5.  Iobituninstaller                     (FFTU - MTU)         º
+	echo 	  º  5.  HiBitUninstaller                     (FFTU - MTU)         º
 	echo 	  º  6.  Autoruns                             (FFTU)               º
 	echo 	  º  7.  PatchMyPC                            (FFTU - MTU)         º
 	echo 	  º  0.  Back                                                      º
@@ -1036,7 +1036,7 @@
 	if "%option%"=="2"   goto  HitmanPro
 	if "%option%"=="3"   goto  MBAM
 	if "%option%"=="4"   goto  CCleaner
-	if "%option%"=="5"   goto  Iobit
+	if "%option%"=="5"   goto  HiBit
 	if "%option%"=="6"   goto  Autoruns
 	if "%option%"=="7"   goto  PatchMyPC
 	if "%option%"=="8"   goto  Control_Center
@@ -1115,15 +1115,15 @@
 	if "%Jobs%"=="YES"  echo Next Tool is Iobit Uninstaller
 	if exist "c:\gos\CCleaner.exe" start "" "c:\gos\CCleaner.exe"
 	if "%Jobs%"=="No" goto GOS_Tools
-	echo Press Enter to start Iobit Uninstaller
+	echo Press Enter to start HiBitUninstaller
 	pause >nul
-: Iobit
+: HiBit
 	cls
 	echo.
 	if "%Jobs%"=="YES" mode con: cols=50 lines=3
 	if "%Job%"=="FFTU" echo Next Tool is Autoruns
 	if "%Job%"=="MTU"  echo Next Tool is PatchMyPC
-	if exist "c:\gos\Iobituninstaller.exe" start "" "c:\gos\Iobituninstaller.exe"
+	if exist "c:\gos\HiBitUninstaller.exe" start "" "c:\gos\HiBitUninstaller.exe"
 	if "%Jobs%"=="No" goto GOS_Tools
 	if "%Job%"=="FFTU" echo Press Enter to start Autoruns
 	if "%Job%"=="MTU"  echo Press Enter to start PatchMyPC
